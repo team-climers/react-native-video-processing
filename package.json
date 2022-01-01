@@ -1,6 +1,6 @@
 {
   "name": "react-native-video-processing",
-  "version": "1.7.1",
+  "version": "2.0.0",
   "description": "Native Video processing/editing for React-Native",
   "main": "index.js",
   "scripts": {
@@ -72,6 +72,6 @@
     "react-native": "^0.49.5",
     "react-native-create-library": "^3.1.2",
     "react-test-renderer": "16.0.0",
-    "semantic-release": "^17.2.3"
+    "semantic-release": "^8.2.3"
   }
 }

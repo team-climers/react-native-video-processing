@@ -386,7 +386,7 @@ public class Trimmer {
     ReadableMap videoMetadata = getVideoRequiredMetadata(source, ctx);
     int videoWidth = videoMetadata.getInt("width");
     int videoHeight = videoMetadata.getInt("height");
-    int videoBitrate = videoMetadata.getInt("bitrate");
+    // int videoBitrate = videoMetadata.getInt("bitrate");
 
     int width = options.hasKey("width") ? (int)( options.getDouble("width") ) : 0;
     int height = options.hasKey("height") ? (int)( options.getDouble("height") ) : 0;
@@ -402,22 +402,22 @@ public class Trimmer {
       height = sizes.getInt("height");
     }
 
-    Double minimumBitrate = options.hasKey("minimumBitrate") ? options.getDouble("minimumBitrate") : null;
-    Double bitrateMultiplier = options.hasKey("bitrateMultiplier") ? options.getDouble("bitrateMultiplier") : 1.0;
+    // Double minimumBitrate = options.hasKey("minimumBitrate") ? options.getDouble("minimumBitrate") : null;
+    // Double bitrateMultiplier = options.hasKey("bitrateMultiplier") ? options.getDouble("bitrateMultiplier") : 1.0;
     Boolean removeAudio = options.hasKey("removeAudio") ? options.getBoolean("removeAudio") : false;
-    Integer crf = options.hasKey("crf") ? options.getInt("crf") : null;
-    Double averageBitrate = videoBitrate / bitrateMultiplier;
 
-    if (minimumBitrate != null) {
-      if (averageBitrate < minimumBitrate) {
-        averageBitrate = minimumBitrate;
-      }
-      if (videoBitrate < minimumBitrate) {
-        averageBitrate = videoBitrate * 1.0;
-      }
-    }
+    // Double averageBitrate = videoBitrate / bitrateMultiplier;
 
-    Log.d(LOG_TAG, "getVideoRequiredMetadata: averageBitrate - " + Double.toString(averageBitrate));
+    // if (minimumBitrate != null) {
+    //   if (averageBitrate < minimumBitrate) {
+    //     averageBitrate = minimumBitrate;
+    //   }
+    //   if (videoBitrate < minimumBitrate) {
+    //     averageBitrate = videoBitrate * 1.0;
+    //   }
+    // }
+
+    // Log.d(LOG_TAG, "getVideoRequiredMetadata: averageBitrate - " + Double.toString(averageBitrate));
 
     final File tempFile = createTempFile("mp4", promise, ctx);
 
@@ -425,26 +425,31 @@ public class Trimmer {
     cmd.add("-y");
     cmd.add("-i");
     cmd.add(source);
+    // cmd.add("-c:v");
     cmd.add("-vcodec");
     cmd.add("libx264");
-    if(crf != null) {
-      cmd.add("-crf");
-      cmd.add(Integer.toString(crf));
-    }else {
-      cmd.add("-b:v");
-      cmd.add(Double.toString(averageBitrate / 1000) + "K");
-      cmd.add("-bufsize");
-      cmd.add(Double.toString(averageBitrate / 2000) + "K");
-    }
-     if ( width != 0 && height != 0 ) {
-       cmd.add("-vf");
-       cmd.add("scale=" + Integer.toString(width) + ":" + Integer.toString(height));
-     }
+    // cmd.add("-b:v");
+    // cmd.add(Double.toString(averageBitrate/1000)+"K");
+    // cmd.add("-bufsize");
+    // cmd.add(Double.toString(averageBitrate/2000)+"K");
+    cmd.add("-crf");
+    cmd.add("27");
+    cmd.add("-preset");
+    cmd.add("veryfast");
+    cmd.add("-c:a");
+    cmd.add("copy");
 
-     cmd.add("-preset");
-     cmd.add("ultrafast");
-     cmd.add("-pix_fmt");
-     cmd.add("yuv420p");
+    if ( width != 0 && height != 0 ) {
+      // cmd.add("-vf");
+      // cmd.add("scale=" + Integer.toString(width) + ":" + Integer.toString(height));
+      cmd.add("-s");
+      cmd.add(Integer.toString(width) + "x" + Integer.toString(height));
+    }
+
+    // cmd.add("-preset");
+    // cmd.add("ultrafast");
+    // cmd.add("-pix_fmt");
+    // cmd.add("yuv420p");
 
     if (removeAudio) {
       cmd.add("-an");
@@ -482,7 +487,7 @@ public class Trimmer {
       FFmpegMediaMetadataRetriever.IN_PREFERRED_CONFIG = Bitmap.Config.ARGB_8888;
       metadataRetriever.setDataSource(source);
 
-      bmp = metadataRetriever.getFrameAtTime((long) (sec * 1000000), FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+      bmp = metadataRetriever.getFrameAtTime((long) (sec * 1000000));
       if(bmp == null){
         promise.reject("Failed to get preview at requested position.");
         return;
